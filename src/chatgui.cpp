@@ -5,6 +5,8 @@
 #include "chatbot.h"
 #include "chatlogic.h"
 #include "chatgui.h"
+#include <iostream>
+
 
 // size of chatbot window
 const int width = 414;
@@ -132,6 +134,8 @@ ChatBotPanelDialog::ChatBotPanelDialog(wxWindow *parent, wxWindowID id)
 
 ChatBotPanelDialog::~ChatBotPanelDialog()
 {
+
+    std::cout << "deleting chat bot panel dialog" << std::endl;
     //// STUDENT CODE
     ////
 

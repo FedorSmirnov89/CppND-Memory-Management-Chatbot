@@ -29,11 +29,14 @@ ChatLogic::ChatLogic()
 
 ChatLogic::~ChatLogic()
 {
+    std::cout << "deleting chat logic" << std::endl;
+
     //// STUDENT CODE
     ////
 
     // delete chatbot instance
-    delete _chatBot;
+    // chat bot is owned by a graph node -> no deletion here
+    //delete _chatBot;
 
     // delete all nodes
     for (auto it = std::begin(_nodes); it != std::end(_nodes); ++it)
