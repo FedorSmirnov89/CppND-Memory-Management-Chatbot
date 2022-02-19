@@ -3,7 +3,10 @@
 
 #include <iostream>
 
-GraphNode::GraphNode(int id) { _id = id; _chatBot = nullptr;}
+GraphNode::GraphNode(int id) {
+  _id = id;
+  _chatBot = nullptr;
+}
 
 GraphNode::~GraphNode() {
   //// STUDENT CODE
@@ -11,10 +14,12 @@ GraphNode::~GraphNode() {
   std::cout << "deleting graph node " << GetID() << std::endl;
 
   // chat bot destroyed if it is in the current node
-  if (_chatBot != nullptr){
-      std::cout << "chatbot was in node " << GetID()  << std::endl;
-      delete _chatBot;
-  }
+
+  // should not be necessary since handled by the unique pointer
+  // if (_chatBot != nullptr){
+  //    std::cout << "chatbot was in node " << GetID()  << std::endl;
+  //    delete _chatBot;
+  //}
 
   //     delete _chatBot;
 
@@ -28,21 +33,21 @@ void GraphNode::AddEdgeToParentNode(GraphEdge *edge) {
   _parentEdges.push_back(edge);
 }
 
-void GraphNode::AddEdgeToChildNode(GraphEdge&& edge) {
+void GraphNode::AddEdgeToChildNode(GraphEdge &&edge) {
   _childEdges.push_back(std::make_unique<GraphEdge>(edge));
 }
 
 //// STUDENT CODE
 ////
-void GraphNode::MoveChatbotHere(ChatBot *chatbot) {
+void GraphNode::MoveChatbotHere(unique_ptr<ChatBot> &&chatbotPtr) {
   std::cout << "Moving Chatbot here -- node " << GetID() << std::endl;
-  _chatBot = chatbot;
+  _chatBot = std::move(chatbotPtr);
   _chatBot->SetCurrentNode(this);
 }
 
 void GraphNode::MoveChatbotToNewNode(GraphNode *newNode) {
   std::cout << "Moving Chatbot" << std::endl;
-  newNode->MoveChatbotHere(_chatBot);
+  newNode->MoveChatbotHere(std::move(_chatBot));
   _chatBot = nullptr; // invalidate pointer at source
 }
 ////
@@ -52,7 +57,7 @@ GraphEdge *GraphNode::GetChildEdgeAtIndex(int index) {
   //// STUDENT CODE
   ////
 
-  // returning raw pointer made from the unique pointer 
+  // returning raw pointer made from the unique pointer
   // at the requested index
   return _childEdges[index].get();
 
