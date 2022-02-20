@@ -259,7 +259,7 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename) {
   // for graphnode.cpp
   // rootNode->MoveChatbotHere(std::make_unique<ChatBot>(std::move(chatBot)));
 
-  rootNode->MoveChatbotHere(chatBot);
+  rootNode->MoveChatbotHere(std::move(chatBot));
 
   ////
   //// EOF STUDENT CODE
