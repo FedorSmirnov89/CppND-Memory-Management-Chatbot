@@ -24,7 +24,9 @@ private:
     
     // after the changes, this handle is not owned 
     // any more
-    std::vector<GraphEdge *> _edges;
+    // Edges are owned by the nodes -> just keeping the raw pointer 
+    // references
+    //std::vector<GraphEdge *> _edges;
 
     ////
     //// EOF STUDENT CODE

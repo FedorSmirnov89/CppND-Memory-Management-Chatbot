@@ -8,8 +8,6 @@
 #include "graphedge.h"
 #include "graphnode.h"
 
-int ChatBot::referenceCounter;
-
 // constructor WITHOUT memory allocation
 ChatBot::ChatBot() {
 
@@ -30,20 +28,16 @@ ChatBot::ChatBot(std::string filename) {
 
   // load image into heap memory
   _image = new wxBitmap(filename, wxBITMAP_TYPE_PNG);
-
-  referenceCounter = 1;
 }
 
 ChatBot::~ChatBot() {
   std::cout << "ChatBot Destructor" << std::endl;
 
-  if (--referenceCounter == 0) {
-    // deallocate heap memory
-    if (_image != NULL) // Attention: wxWidgets used NULL and not nullptr
-    {
-      delete _image;
-      _image = NULL;
-    }
+  // deallocate heap memory
+  if (_image != NULL) // Attention: wxWidgets used NULL and not nullptr
+  {
+    delete _image;
+    _image = NULL;
   }
 }
 
@@ -65,8 +59,8 @@ ChatBot::ChatBot(ChatBot &other) {
   _rootNode = other._rootNode;
 
   // the owned class is also just copied while updating the reference counter
-  _image = other._image;
-  referenceCounter++;
+  _image = new wxBitmap();
+  *_image = *other._image;
 }
 
 // Copy assignment operator
@@ -81,12 +75,8 @@ ChatBot &ChatBot::operator=(ChatBot &other) {
     _chatLogic = other._chatLogic;
     _rootNode = other._rootNode;
 
-    // it should only be necessary to copy the image if it is a nullptr
-    // (since all chat bot instances point to the same image)
-    if (_image == nullptr) {
-      referenceCounter++;
-      _image = other._image;
-    }
+    _image = new wxBitmap();
+    *_image = *other._image;
   }
   return *this;
 }
@@ -103,9 +93,14 @@ ChatBot::ChatBot(ChatBot &&other) {
 
   _chatLogic = other._chatLogic;
   _rootNode = other._rootNode;
-
   _image = other._image;
-  referenceCounter++;
+  _currentNode = other._currentNode;
+  _chatLogic->SetChatbotHandle(this);
+
+  other._image = NULL;
+  other._currentNode = nullptr;
+  other._rootNode = nullptr;
+  other._chatLogic = nullptr;
 }
 
 // Move assignment operator
@@ -116,11 +111,16 @@ ChatBot &ChatBot::operator=(ChatBot &&other) {
 
   if (&other != this) {
 
-    _chatLogic = other._chatLogic;
-    _rootNode = other._rootNode;
-
+    delete _image;
     _image = other._image;
-    referenceCounter++;
+    _currentNode = other._currentNode;
+    _rootNode = other._rootNode;
+    _chatLogic = other._chatLogic;
+    _chatLogic->SetChatbotHandle(this);
+    other._image = NULL;
+    other._currentNode = nullptr;
+    other._rootNode = nullptr;
+    other._chatLogic = nullptr;
   }
   return *this;
 }

@@ -24,7 +24,6 @@ private:
     int ComputeLevenshteinDistance(std::string s1, std::string s2);
 
 public:
-    static int referenceCounter;
 
     // constructors / destructors
     ChatBot();                     // constructor WITHOUT memory allocation

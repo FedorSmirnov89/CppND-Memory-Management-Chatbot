@@ -185,17 +185,19 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename) {
                   });
 
               // create new edge
-              GraphEdge *edge = new GraphEdge(id);
-              edge->SetChildNode((*childNode).get());
-              edge->SetParentNode((*parentNode).get());
-              _edges.push_back(edge);
+              unique_ptr<GraphEdge> edgePtr = std::make_unique<GraphEdge>(id);
+              edgePtr->SetChildNode((*childNode).get());
+              edgePtr->SetParentNode((*parentNode).get());
+              // Chat logic has just the handles, not the ownership ->
+              // addressing edges via raw pointers
+              //_edges.push_back(edgePtr.get());
 
               // find all keywords for current node
-              AddAllTokensToElement("KEYWORD", tokens, *edge);
+              AddAllTokensToElement("KEYWORD", tokens, *edgePtr);
 
               // store reference in child node and parent node
-              (*childNode)->AddEdgeToParentNode(edge);
-              (*parentNode)->AddEdgeToChildNode(std::move(*edge));
+              (*childNode)->AddEdgeToParentNode(edgePtr.get());
+              (*parentNode)->AddEdgeToChildNode(std::move(edgePtr));
             }
 
             ////
@@ -232,16 +234,32 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename) {
     }
   }
 
+  // Code in the previous submission:
+
   // chatbot created directly within manager-object
-  unique_ptr<ChatBot> chatBotUnPtr =
-      std::make_unique<ChatBot>("../images/chatbot.png");
-  SetChatbotHandle(chatBotUnPtr.get());
-  chatBotUnPtr->SetChatLogicHandle(this);
+  // unique_ptr<ChatBot> chatBotUnPtr =
+  //     std::make_unique<ChatBot>("../images/chatbot.png");
+  // SetChatbotHandle(chatBotUnPtr.get());
+  // chatBotUnPtr->SetChatLogicHandle(this);
+
+  // // add chatbot to graph root node
+  // _chatBot->SetRootNode(rootNode);
+  // // transfering ownership to the root node
+  // rootNode->MoveChatbotHere(std::move(chatBotUnPtr));
+
+  // Code recommended by the reviewer:
+
+  ChatBot chatBot = ChatBot("../images/chatbot.png");
+  chatBot.SetChatLogicHandle(this);
 
   // add chatbot to graph root node
-  _chatBot->SetRootNode(rootNode);
-  // transfering ownership to the root node
-  rootNode->MoveChatbotHere(std::move(chatBotUnPtr));
+  chatBot.SetRootNode(rootNode);
+
+  // recommended by reviewer, but inconsistent with the code recommended
+  // for graphnode.cpp
+  // rootNode->MoveChatbotHere(std::make_unique<ChatBot>(std::move(chatBot)));
+
+  rootNode->MoveChatbotHere(chatBot);
 
   ////
   //// EOF STUDENT CODE
